@@ -114,7 +114,7 @@ def update_followUps_worknotes(email_subject, work_notes):
     # Decode the JSON response into a dictionary and use the data
 
     data = worknotes_update_response.json()
-    print(data)
+
 
 def resolve_ticket(email_subject):
     subject_email = email_subject
@@ -155,5 +155,4 @@ def resolve_ticket(email_subject):
 
         # Decode the JSON response into a dictionary and use the data
         data = response.json()
-        print(data)
         return resolve_inc

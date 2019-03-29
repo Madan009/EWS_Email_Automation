@@ -43,7 +43,7 @@ def extract_new_structured_email():
 
             # Generating the work notes to be updated
             work_notes = "New alert: \n\n" + "From: " + from_email + "Short Description: " + subject_email + "\n\n" + "Time of Occurence: " + str(date_email)
-            # "To :" + to_email + "CC :" + cc_email +
+
             # Updating the work notes of the Incident
             methods.update_worknotes(correlate_result, work_notes)
 
@@ -66,7 +66,8 @@ def extract_new_structured_email():
                 'short_description'] + ' ' + new_incident['severity'] + "-Low"
 
             channel = '#edwinsamples'
-            slack_integration.post_in_slack(message_slack, channel)
+            slack_integration.post_in_dper_slack(message_slack, channel)
+            slack_integration.post_in_tp_slack(message_slack, channel)
 
             message_reply_email = "Hi, \n\n" + "Please find the ticket created for your request" + "\n\n" + new_incident[
                 'number'] + '  :  ' + new_incident['short_description'] + '     ' + new_incident[
@@ -105,25 +106,29 @@ def resolve_aws_incident():
 def email_count():
     count = account.inbox.filter(is_read=False, subject__istartswith='[EXTERNAL] ALARM:').count()
     print(count)
+    if(count>3):
+        message_slack = "@prodsupport There is a spike in AWS alerts triggered. We have " + str(count) + " alerts acknowledged. Please look into #dper-huddle channel for ticket details"
+        channel = '#prod_support_oncall'
+        slack_integration.post_in_tp_slack(message_slack, channel)
+    else:
+        return None
 
 if __name__ == '__main__':
-    email_count()
-    extract_new_structured_email()
-    follow_up()
-    resolve_aws_incident()
 
-def schedule_job():
+    def schedule_job():
 
-    schedule.every(5).seconds.do(extract_new_structured_email)
-    schedule.every(5).seconds.do(follow_up)
-    schedule.every(5).seconds.do(resolve_aws_incident)
+        email_count()
+        extract_new_structured_email()
+        follow_up()
+        resolve_aws_incident()
 
-while True:
-    """
-    This While loop should be there for scheduler to run!!!!
-    """
-    schedule_job()
-    schedule.run_pending()
+    schedule.every(5).seconds.do(schedule_job)
+
+    while True:
+        """
+        This While loop should be there for scheduler to run!!!!
+        """
+        schedule.run_pending()
 
 
 
