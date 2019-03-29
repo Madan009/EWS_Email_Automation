@@ -97,11 +97,11 @@ def update_followUps_worknotes(email_subject, work_notes):
 
     # Decode the JSON response into a dictionary and use the data
     data = response.json()
-    print(data)
     sys_id = data['result'][0]['sys_id']
 
     # post in work_notes
-    url = 'https://dev34906.service-now.com/api/now/table/incident/' + sys_id + ''
+    url = 'https://dev34906.service-now.com/api/now/table/incident/'+sys_id +''
+
 
     worknotes_update_response = requests.patch(url, auth=(user, pwd), headers=headers,
                                                json={"work_notes": work_notes})
@@ -114,13 +114,15 @@ def update_followUps_worknotes(email_subject, work_notes):
     # Decode the JSON response into a dictionary and use the data
 
     data = worknotes_update_response.json()
-    return True
+    print(data)
 
-def resolve_AWS_incident(email_subject):
+def resolve_ticket(email_subject):
     subject_email = email_subject
     short_description = subject_email.replace("OK:", "ALARM:")
 
-    url = 'https://dev34906.service-now.com/api/now/table/incident?sysparm_query=active%3Dtrue%5Eshort_descriptionLIKE' + short_description + '%5Eincident_state%3D2%5EORincident_state%3D1&sysparm_fields=number%2Csys_id&sysparm_limit=10'
+    url = 'https://dev34906.service-now.com/api/now/table/incident?sysparm_query=active%3Dtrue%5Eshort_descriptionLIKE'+short_description+'%5Eincident_state%3D2%5EORincident_state%3D1&sysparm_fields=number%2Csys_id&sysparm_limit=10'
+
+    headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
     response = requests.get(url, auth=(user, pwd), headers=headers)
 
@@ -132,17 +134,19 @@ def resolve_AWS_incident(email_subject):
 
     if (len(data['result']) != 0):
         resolve_inc = data['result'][0]['number']
-        resolve_url = "https://dev34906.service-now.com/nav_to.do?uri=incident.do?sys_id=" + data['result'][0]['sys_id']
+        resolve_sysID = data['result'][0]['sys_id']
+
         close_code = "Solved (Permanently)"
         resolved_by = "Maharaja P"
-        close_notes = "Alert turned OK"
+        close_notes = "Alert turned to OK status "
         state = "Resolved"
-        url = 'https://dev34906.service-now.com/api/now/table/incident/2ac2c8eddb08f700c82752b0cf96199b?sysparm_fields='+close_code+'%2C'+resolved_by+'%2C'+close_notes+'%2C'+state
+        work_notes = subject_email + "\n\n" + "Since we got OK status, the ticket has been resolved"
+        url = 'https://dev34906.service-now.com/api/now/table/incident/'+resolve_sysID+'?sysparm_fields=close_code%2Cclosed_by%2Cclose_notes%2Cstate'
 
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
 
         # Do the HTTP request
-        response = requests.patch(url, auth=(user, pwd), headers=headers)
+        response = requests.patch(url, auth=(user, pwd), headers=headers, json={"close_code": close_code, "resolved_by": resolved_by, "close_notes": close_notes, "incident_state": state, "work_notes": work_notes})
 
         # Check for HTTP codes other than 200
         if response.status_code != 200:
@@ -152,3 +156,4 @@ def resolve_AWS_incident(email_subject):
         # Decode the JSON response into a dictionary and use the data
         data = response.json()
         print(data)
+        return resolve_inc
