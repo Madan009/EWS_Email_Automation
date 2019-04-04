@@ -3,7 +3,8 @@ import requests
 
 def post_in_tp_slack(message,channel):
 
-    # Set the webhook_url to the one provided by Slack when you create the webhook at https://my.slack.com/services/new/incoming-webhook/
+    """ Post alert details in #prod_support_oncall slack channel """
+
     webhook_url = 'https://hooks.slack.com/services/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'
     slack_data = {'text': message}
 
@@ -20,7 +21,8 @@ def post_in_tp_slack(message,channel):
 
 def post_in_dper_slack(message,channel):
 
-    # Set the webhook_url to the one provided by Slack when you create the webhook at https://my.slack.com/services/new/incoming-webhook/
+    """ Post alert details in #dper_huddle slack channel """
+
     webhook_url = 'https://hooks.slack.com/services/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'
     slack_data = {'text': message}
 
