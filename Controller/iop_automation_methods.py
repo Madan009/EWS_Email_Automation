@@ -153,7 +153,7 @@ def resolve_ticket(email_subject):
 
         close_code = "Solved (Permanently)"
         resolved_by = "Maharaja P"
-        close_notes = "Alert turned to OK status "
+        close_notes = subject_email + "\n\n" + "Since we got OK status, the ticket has been resolved"
         state = "Resolved"
         work_notes = subject_email + "\n\n" + "Since we got OK status, the ticket has been resolved"
         url = 'https://dev34906.service-now.com/api/now/table/incident/'+resolve_sysID+'?sysparm_fields=close_code%2Cclosed_by%2Cclose_notes%2Cstate'

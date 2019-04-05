@@ -60,7 +60,7 @@ def extract_new_structured_email():
 
             """ Update Existing ticket worknotes with new alert details"""
 
-            work_notes = "New alert: \n\n" + "From: " + from_email + "Short Description: " + subject_email + "\n\n" + "Time of Occurence: " + str(date_email)
+            work_notes = "New alert: \n\n" + "From: " + from_email + "\nShort Description: " + subject_email + "\n\n" + "Time of Occurence: " + str(date_email)
             iop_automation_methods.update_correlated_alert_worknotes(correlate_result, work_notes)
 
             """Move Correlated email to Actioned Alarms folder in mailbox"""
@@ -146,7 +146,7 @@ def resolve_aws_incident():
 
         """ Reply back to Reporter with ticket closure update"""
 
-        resolve_email_worknotes = "The Ticket has been closed"
+        resolve_email_worknotes = "The Ticket has been Resolved"
         aws_email.reply_all(subject=subject_email + " " + resolve_ticket, body=resolve_email_worknotes)
 
 def outage_predictor():
@@ -154,7 +154,7 @@ def outage_predictor():
     """ Fetch count of email triggred for each 5 seconds """
 
     count = account.inbox.filter(is_read=False, subject__istartswith='[EXTERNAL] ALARM:').count()
-    if(count>3):
+    if(count>2):
 
         """ Notify production support team in slack for more ticket volume"""
 
